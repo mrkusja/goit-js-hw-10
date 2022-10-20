@@ -12,13 +12,16 @@ refs.input.addEventListener('input', debounce(onInput, 300));
 function onInput(e) {
   let name = e.target.value;
   let newName = name.trim();
+  refs.countriesList.innerHTML = '';
+  refs.countriesInfo.innerHTML = '';
+  
+  if (name === '') {
+    return
+  }
 
   fetchCountries(newName).then(country => {
     console.log(country.length);
-    if ((name = '')) {
-            refs.countriesList.innerHTML = '';
-            refs.countriesInfo.innerHTML = '';
-          }
+
     if (country.length > 10) {
       Notiflix.Notify.info(
         'Too many matches found. Please enter a more specific name.'
@@ -40,7 +43,7 @@ function renderCountriesList(countries) {
     .map(({ name, flags }) => {
       return `<li>
       <img src="${flags.svg}" alt="flag" width=30 height=20/>
-      <p>${name}</p>
+      <p>${name.official}</p>
     </li>`;
     })
     .join('');
@@ -51,16 +54,14 @@ function renderCountriesList(countries) {
 function renderCountriesInfo(countries) {
   const markup = countries
     .map(({ name, flags, capital, population, languages }) => {
-      const allLanguage = languages.map(el => el.name);
-      console.log(allLanguage);
     //   console.log(name)
       return `<li>
                 <div>
                     <img src="${flags.svg}" alt="flag" width=30 height=20/>
-                    <p>${name}</p>
+                    <p>${name.official}</p>
                     <p>Capital: ${capital}</p>
                     <p>Population: ${population}</p>
-                    <p>Languages: ${allLanguage}</p>
+                    <p>Languages: ${Object.values(languages)}</p>
                 </div>
             </li>`;
     })
@@ -68,7 +69,7 @@ function renderCountriesInfo(countries) {
   return (refs.countriesInfo.innerHTML = markup);
 }
 
-const BASE_URL = 'https://restcountries.com/v2/name/';
+const BASE_URL = 'https://restcountries.com/v3.1/name/';
 const params = 'name,capital,population,flags,languages';
 
 function fetchCountries(name) {
